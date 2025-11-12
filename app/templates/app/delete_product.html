@@ -1,0 +1,15 @@
+{% extends 'app/base/base.html' %}
+
+{% block title %}Delete Product{% endblock %}
+
+{% block detail_content %}
+<div class="container mt-5">
+    <h2>Are you sure you want to delete"{{ product.name }}"?</h2>
+    <p>This action cannot be undone. Once deleted, the product will be removed permanently.</p>
+    <form method="POST">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Yes, Delete</button>
+        <a href="{% url 'app:product_detail' product.id %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}
