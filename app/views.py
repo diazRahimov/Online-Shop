@@ -1,14 +1,18 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from .models import Category, Product
-from .forms import CustomUserCreationForm, ProductForm
+from .models import Category, Product, Order
+from .forms import CustomUserCreationForm, ProductForm, CategoryForm, OrderForm
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required   
 from django.contrib import messages
 from django.http import HttpResponseForbidden
+from django.db.models import Q
+
 
 
 def index(request,category_id = None):
+    search_query = request.GET.get('q','')
+    filter_type = request.GET.get('filter_type','')
     
     categories = Category.objects.all()
     
@@ -16,7 +20,19 @@ def index(request,category_id = None):
         products = Product.objects.filter(category = category_id)
     else:
         products = Product.objects.all()
-    
+
+    if search_query:
+        products = products.filter(Q(name__icontains = search_query) | Q(description__icontains=search_query))
+
+        
+    if filter_type == 'expensive':
+        products = products.order_by('-price')
+        
+    elif filter_type == 'cheap':
+        products = products.order_by('price')
+        
+    else:
+        products = Product.objects.all()
     
     context = {
         'categories':categories,
@@ -24,9 +40,28 @@ def index(request,category_id = None):
     }
     return render(request,'app/home.html',context)
 
+
 def view_product(request, pk):
-    product = get_object_or_404(Product, pk = pk)
-    return render(request, 'app/detail.html', {'product' : product})
+    product = get_object_or_404(Product, pk=pk)
+
+    # Order form handling:
+    if request.method == "POST":
+        form = OrderForm(request.POST)
+        if form.is_valid():
+            Order.objects.create(
+                product=product,
+                name=form.cleaned_data["name"],
+                phone=form.cleaned_data["phone"],
+            )
+            messages.success(request, "Order successfully placed!")
+            return redirect('app:product_detail', pk=pk)
+    else:
+        form = OrderForm()
+
+    return render(request, 'app/detail.html', {
+        'product': product,
+        'form': form,
+    })
 
 from .forms import CustomUserCreationForm
 
@@ -61,11 +96,24 @@ def login_view(request):
                 messages.error(request, "Invalid credentials")
         else:
             messages.error(request, "Please correct the errors below")
-    return render(request, 'app/login.html', {'form': form})
+    return render(request, 'app/login.html', {'form': form})    
 
 def logout_view(request):
     logout(request)
     return redirect('app:index')
+
+@login_required
+def add_category(request):
+    if request.user.role != 'admin':
+        return HttpResponseForbidden("You have no access to add category.")
+
+    form = CategoryForm(request.POST or None)
+    if request.method == 'POST' and form.is_valid():
+        form.save()
+        return redirect('app:index') 
+
+
+    return render(request, 'app/add_category.html', {'form': form})
 
 @login_required
 def add_product_view(request):
@@ -87,7 +135,7 @@ def add_product_view(request):
 def update_product(request, pk):
     product = get_object_or_404(Product, pk=pk)
     
-    if request.user.role != '':
+    if request.user.role != 'admin':
         messages.error(request, "You are not allowed to edit this product.")
         return redirect('app:product_detail', pk=pk)
     
@@ -116,4 +164,21 @@ def delete_product(request, pk):
         messages.success(request, "Product deleted successfully!")
         return redirect('app:index')
     
-    return render(request, 'app/delete_product.html', {'product': product}) 
+    return render(request, 'app/delete_product.html', {'product': product})
+
+
+def product_detail(request, pk):
+    product = get_object_or_404(Product, pk=pk)
+
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        phone = request.POST.get('phone')
+
+        if name and phone:
+            Order.objects.create(product=product, name=name, phone=phone)
+            messages.success(request, 'Order successfully placed!')
+            return redirect('product_detail', pk=product.pk)
+        else:
+            messages.error(request, 'Please fill all fields.')
+
+    return render(request, 'app/product_detail.html', {'product': product})

@@ -66,10 +66,10 @@
                                         </div>
                                         <!-- Product price-->
                                         {% if product.discount > 0 %}
-                                            <span class="text-muted text-decoration-line-through">${{ product.price }}</span>
-                                            ${{ product.discounted_price|floatformat:2 }}
+                                            <span class="text-muted text-decoration-line-through">sum {{ product.price }}</span>
+                                            {{ product.discounted_price|floatformat:2 }} sum
                                         {% else %}
-                                            ${{ product.price }}
+                                            {{ product.price }} sum
                                         {% endif %}
                                     </div>
                                 </div>

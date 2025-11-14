@@ -74,3 +74,11 @@ class CustomUser(AbstractUser):
         blank=True,
         help_text="Specific permissions for this user."
     )
+
+class Order(BaseModel):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="orders")
+    name = models.CharField(max_length=255)
+    phone = models.CharField(max_length=50)
+
+    def __str__(self):
+        return f"Order by {self.name} for {self.product.name}"

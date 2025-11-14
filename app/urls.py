@@ -1,5 +1,5 @@
 from django.urls import path, include
-from .views import index, view_product, login_view, register_view, logout_view, add_product_view, delete_product, update_product
+from .views import index, view_product, login_view, register_view, logout_view, add_product_view, delete_product, update_product, add_category
 
 app_name = 'app'
 
@@ -13,4 +13,5 @@ urlpatterns = [
     path('product/add/', add_product_view, name='add_product'),
     path('product/<int:pk>/edit/', update_product, name='update_product'),        
     path('product/<int:pk>/delete/', delete_product, name='delete_product'),
+    path('add-category/', add_category, name='add_category'),
 ]

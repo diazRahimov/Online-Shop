@@ -4,8 +4,7 @@
 
 {% block detail_content %}
 <div class="container mt-5">
-    <h2>Are you sure you want to delete"{{ product.name }}"?</h2>
-    <p>This action cannot be undone. Once deleted, the product will be removed permanently.</p>
+    <h2>Are you sure you want to delete "{{ product.name }}"?</h2>
     <form method="POST">
         {% csrf_token %}
         <button type="submit" class="btn btn-danger">Yes, Delete</button>
