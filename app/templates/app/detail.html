@@ -26,10 +26,10 @@
                 <!-- Price / Discount -->
                 <div class="fs-5 mb-4">
                     {% if product.discount > 0 %}
-                        <span class="text-decoration-line-through">{{ product.price }} sum</span>
-                        <span class="ms-2 text-success">{{ product.discounted_price|floatformat:2 }} sum</span>
+                        <span class="text-decoration-line-through">{{ product.price }} $ </span>
+                        <span class="ms-2 text-success">{{ product.discounted_price|floatformat:2 }} $ </span>
                     {% else %}
-                        <span>{{ product.price }} sum</span>
+                        <span>{{ product.price }} $ </span>
                     {% endif %}
                 </div>
 

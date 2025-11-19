@@ -11,26 +11,11 @@ from django.db.models import Q
 
 
 def index(request,category_id = None):
-    search_query = request.GET.get('q','')
-    filter_type = request.GET.get('filter_type','')
     
     categories = Category.objects.all()
     
     if category_id:
         products = Product.objects.filter(category = category_id)
-    else:
-        products = Product.objects.all()
-
-    if search_query:
-        products = products.filter(Q(name__icontains = search_query) | Q(description__icontains=search_query))
-
-        
-    if filter_type == 'expensive':
-        products = products.order_by('-price')
-        
-    elif filter_type == 'cheap':
-        products = products.order_by('price')
-        
     else:
         products = Product.objects.all()
     
@@ -44,7 +29,6 @@ def index(request,category_id = None):
 def view_product(request, pk):
     product = get_object_or_404(Product, pk=pk)
 
-    # Order form handling:
     if request.method == "POST":
         form = OrderForm(request.POST)
         if form.is_valid():
