@@ -1,5 +1,8 @@
-from .models import CustomUser, Product, Category
+from .models import CustomUser, Product, Category, ProductComment
+from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.forms import AuthenticationForm
 from django import forms
+
 
 class CustomUserCreationForm(forms.ModelForm):
     password1 = forms.CharField(widget=forms.PasswordInput, label="Password")
@@ -42,3 +45,35 @@ class CategoryForm(forms.ModelForm):
 class OrderForm(forms.Form):
     name = forms.CharField(max_length=255, label="Your name")
     phone = forms.CharField(max_length=50, label="Your phone")
+
+class ProductCommentForm(forms.ModelForm):
+    class Meta:
+        model = ProductComment
+        fields = ['comment', 'rating', 'file']
+        widgets = {
+            'comment': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 3,
+                'placeholder': 'Write your comment here...'
+            }),
+            'rating': forms.Select(attrs={'class': 'form-select'}),
+            'file': forms.ClearableFileInput(attrs={'class': 'form-control'}),      
+        },
+        labels = {
+            'comment': '',
+            'rating': 'Rating',
+            'file': 'Upload Image (optional)'
+        }
+        
+class EmailForm(forms.Form):
+    subject = forms.CharField(max_length=60)
+    message = forms.CharField(widget=forms.Textarea)
+    sender_email = forms.EmailField(label="Your Email")
+
+
+
+from django import forms
+from django.contrib.auth.forms import AuthenticationForm
+
+class PhoneLoginForm(AuthenticationForm):
+    username = forms.CharField(label='Phone number')
